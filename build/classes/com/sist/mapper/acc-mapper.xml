@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.sist.mapper.acc-mapper">
+
+
+	<select id="accDetailData" resultType="AccVO" parameterType="String">
+		SELECT * FROM acc
+		WHERE product_id=#{product_id}
+	</select>
+	<select id="accDetailData2" resultType="Acc_jjimVO"
+		parameterType="String">
+		SELECT
+		acc.product_id,acc.product_name,acc.product_main_img,acc.product_sub_img1,acc.product_sub_img2,acc.product_explain,acc.product_origin_price,acc.product_dc_price,acc.product_company,acc.product_made,acc.product_delivery,acc.product_delivery_fee,acc.stock,acc_cart.ano
+		FROM acc_cart,acc
+		WHERE acc_cart.product_id=acc.product_id
+	</select>
+
+
+	<select id="accListData" resultType="AccVO" parameterType="java.util.Map">
+		SELECT
+		product_id,product_name,product_main_img,product_sub_img1,product_sub_img2,product_explain,product_origin_price,product_dc_price,product_company,product_made,product_delivery,product_delivery_fee,stock,num
+		FROM (SELECT
+		product_id,product_name,product_main_img,product_sub_img1,product_sub_img2,product_explain,product_origin_price,product_dc_price,product_company,product_made,product_delivery,product_delivery_fee,stock,rownum
+		as num
+		FROM (SELECT
+		product_id,product_name,product_main_img,product_sub_img1,product_sub_img2,product_explain,product_origin_price,product_dc_price,product_company,product_made,product_delivery,product_delivery_fee,stock
+		FROM acc
+		<if test="cate!='전체'">
+			WHERE product_name LIKE '%'||#{cate}||'%'
+		</if>
+		ORDER BY product_id DESC))
+		WHERE num BETWEEN #{start} AND #{end}
+	</select>
+	<select id="accTotalPage" resultType="int" parameterType="java.util.Map">
+		SELECT CEIL(COUNT(*)/9.0)
+		FROM acc
+		<if test="cate!='전체'">
+			WHERE product_name LIKE '%'||#{cate}||'%'
+		</if>
+
+	</select>
+
+	<select id="accCate" resultType="AccVO" parameterType="String">
+		SELECT *
+		FROM acc
+		WHERE product_name LIKE '%'||#{name}||'%'
+	</select>
+
+	<select id="accSearchData" resultType="AccVO" parameterType="String">
+		SELECT * FROM acc
+		WHERE product_name LIKE '%'||#{keyword}||'%'
+	</select>
+
+	<!-- 찜 저장 -->
+	<insert id="accInsert" parameterType="Acc_cartVO">
+		INSERT INTO acc_cart VALUES(
+		SYSDATE,
+		#{id},
+		#{product_id},
+		acc_cart_ano_seq.nextval
+		)
+	</insert>
+	<!-- 찜 확인 -->
+	<select id="accOkCount" parameterType="Acc_cartVO" resultType="int">
+		SELECT COUNT(*) FROM acc_cart
+		WHERE product_id=#{product_id} AND id=#{id}
+	</select>
+	<!-- 찜 목록 -->
+	<select id="accGetData" parameterType="String" resultType="Acc_jjimVO">
+		SELECT acc_cart.product_id,
+		product_name,product_main_img,product_sub_img1,product_sub_img2,product_explain,product_origin_price,product_dc_price,product_company,product_made,product_delivery,product_delivery_fee,stock,ano
+		FROM acc_cart,acc
+		WHERE id=#{id} AND acc_cart.product_id=acc.product_id
+	</select>
+
+
+	<insert id="acc_buy" parameterType="Acc_payVO">
+		INSERT INTO acc_pay VALUES(
+		SYSDATE,
+		#{id},
+		#{product_id},
+		#{quantity}
+		)
+	</insert>
+
+</mapper>
+
+

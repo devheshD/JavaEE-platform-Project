@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Connection(getConnection(), disConnection()) -->
+<!-- 
+		1) 데이터베이스 정보 (driver, url, username, password)
+		2) mapper, VO 등록
+ -->
+<!DOCTYPE configuration  
+PUBLIC "-//mybatis.org//DTD Config 3.0//EN"  
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<properties resource="db.properties"/>
+	<!-- resource : 본인 폴더
+			url : 원격(서버)
+	 -->
+	<typeAliases>
+		<!-- VO 등록 -->
+		<typeAlias type="com.sist.vo.NewsVO" alias="NewsVO"/>
+		<typeAlias type="com.sist.vo.News_replyVO" alias="News_replyVO"/>
+		<typeAlias type="com.sist.vo.BrandVO" alias="BrandVO"/>
+		<typeAlias type="com.sist.vo.AccVO" alias="AccVO"/>
+		<typeAlias type="com.sist.vo.Acc_payVO" alias="Acc_payVO"/>
+		<typeAlias type="com.sist.vo.Acc_cartVO" alias="Acc_cartVO"/>
+		<typeAlias type="com.sist.vo.Acc_jjimVO" alias="Acc_jjimVO"/>
+		<typeAlias type="com.sist.vo.CarVO" alias="CarVO"/>
+		<typeAlias type="com.sist.vo.ChargeVO" alias="ChargeVO"/>
+		<typeAlias type="com.sist.vo.MemberVO" alias="MemberVO"/>
+		<typeAlias type="com.sist.vo.ZipcodeVO" alias="ZipcodeVO"/>
+		<typeAlias type="com.sist.vo.Environment_infoVO" alias="Environment_infoVO"/>
+		<typeAlias type="com.sist.vo.Driver_reserveVO" alias="Driver_reserveVO"/>
+		<typeAlias type="com.sist.vo.Car_model_trimVO" alias="Car_model_trimVO"/>
+		<typeAlias type="com.sist.vo.Car_specVO" alias="Car_specVO"/>
+		<typeAlias type="com.sist.vo.Car_optionVO" alias="Car_optionVO"/>
+		<typeAlias type="com.sist.vo.BoardVO" alias="BoardVO"/>
+		<typeAlias type="com.sist.vo.ReplyVO" alias="ReplyVO"/>
+		<typeAlias type="com.sist.vo.Car_estimateVO" alias="Car_estimateVO"/>
+		<typeAlias type="com.sist.vo.AccTotalVO" alias="AccTotalVO"/>
+		<typeAlias type="com.sist.vo.MyEstimateVO" alias="MyEstimateVO"/>
+	</typeAliases>
+	<environments default="development">
+		<environment id="development">
+			<transactionManager type="JDBC"/>
+			<!-- 
+				자동 : type="JDBC"
+				수동 : type="MANAGED"
+				COMMIT	/	ROLLBACK
+			 -->
+			 <dataSource type="POOLED">
+			 	<!-- 
+			 	연결/닫기 반복 : type="UNPOOLED"
+			 	연결을 미리해 놓고 시작 : type="POOLED"	=> DBCP, ConnectionPool
+			 	 -->
+			 	 <property name="driver" value="${driver}"/>
+			 	 <property name="url" value="${url}"/>
+			 	 <property name="username" value="${username}"/>
+			 	 <property name="password" value="${password}"/>
+			 </dataSource>
+		</environment>
+	</environments>
+	<mappers>
+	<mapper resource="com/sist/mapper/acc-mapper.xml"/>
+		<mapper resource="com/sist/mapper/news-mapper.xml"/>
+		<mapper resource="com/sist/mapper/news_reply-mapper.xml"/>
+		<mapper resource="com/sist/mapper/charge-mapper.xml"/>
+		<mapper resource="com/sist/mapper/member-mapper.xml"/>
+		<mapper resource="com/sist/mapper/Environment_info-mapper.xml"/>
+		<mapper resource="com/sist/mapper/reservation-mapper.xml"/>
+		<mapper resource="com/sist/mapper/car-mapper.xml"/>
+		<mapper resource="com/sist/mapper/main-mapper.xml"/>
+		<mapper resource="com/sist/mapper/car_detail-mapper.xml"/>
+		<mapper resource="com/sist/mapper/mypage-mapper.xml"/>
+		<mapper resource="com/sist/mapper/board-mapper.xml"/>
+		
+	</mappers>
+</configuration>

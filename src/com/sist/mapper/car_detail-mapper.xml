@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sist.mapper.car-mapper">
+	<!-- 자동차 상세보기 -->
+	<select id="carDetailData" resultType="CarVO" parameterType="String">
+		SELECT * FROM car WHERE car_num like #{cno}
+	</select>
+	
+	<!-- 자동차 모델 -->
+	<select id="carDetailModel" resultType="Car_model_trimVO" parameterType="String">
+		SELECT model_num, model_name
+		FROM car_model
+		WHERE car_num like #{cno}
+	</select>
+	
+	<!-- 자동차 옵션 -->
+	<select id="carDetailTrim" resultType="Car_model_trimVO" parameterType="String">
+		SELECT car_model.model_num, trim_num, trim_name, trim_fuel_type, trim_cc, trim_efficiency, trim_price
+		FROM car_model, car_trim
+		WHERE car_model.model_num=car_trim.model_num and car_model.car_num = #{cno}
+		ORDER BY car_trim.trim_num
+	</select>
+	
+	<select id="carSpec" resultType="Car_specVO" parameterType="String">
+		SELECT * FROM car_spec
+		WHERE trim_num like #{trim_num}
+	</select>
+	
+	<select id="carCompare" resultType="CarVO" parameterType="String">
+	SELECT total.*
+	FROM(
+	    SELECT car_num,car_name,car_poster,car_price,car_launchdate,car_efficiency,car_size,car_fueltype,brand_name,compare,rownum as num
+	    FROM(
+	        SELECT car_num,car_name,car_poster,car_price,car_launchdate,car_efficiency,car_size,car_fueltype,brand_name,abs(lowprice-base) as compare
+	        FROM(
+	            SELECT car.*,
+	                    TO_NUMBER(REPLACE((CASE
+	                                            WHEN car_price='미정' THEN '0'
+	                                            WHEN car_price LIKE '%~%' THEN SUBSTR(car_price,0,INSTR(car_price,' ',1,1)-1)
+	                                            else car_price
+	                                            END),',','')) as lowPrice, 
+	                    (SELECT TO_NUMBER(REPLACE((CASE
+	                                            WHEN car_price='미정' THEN '0'
+	                                            WHEN car_price LIKE '%~%' THEN SUBSTR(car_price,0,INSTR(car_price,' ',1,1)-1)
+	                                            else car_price
+	                                            END),',','')) FROM CAR WHERE CAR_NUM = #{cno}) AS base
+	            FROM car
+	            )   
+	        where abs(lowprice-base)!=0 
+	        ORDER BY compare
+	        )
+	    )total
+	WHERE num = 1
+	</select>
+	
+	<select id="nopriceList" resultType="String">
+		SELECT car_num 
+		from car 
+		where car_price = '미정'
+	</select>
+	
+	<select id="nopriceRand" parameterType="String" resultType="CarVO">
+		<![CDATA[
+			SELECT S.*
+			FROM (
+				SELECT *
+				FROM car
+				WHERE car_price = '미정' AND car_num != #{car_num}
+				ORDER BY DBMS_RANDOM.VALUE
+			)S
+			WHERE ROWNUM < 2    
+		]]>
+	</select>
+	
+	<select id="carOptionData" resultType="Car_optionVO" parameterType="String">
+		SELECT car_model.car_num,car_model.model_num,car_model.model_name,car_trim.trim_num, car_trim.trim_name,
+		        car_option.option_name,car_option.option_price
+		FROM car,car_model,car_trim,car_option
+		WHERE car.car_num=car_model.car_num AND car_model.model_num=car_trim.model_num AND car_trim.trim_num=car_option.trim_num
+		        AND car_option.trim_num=#{trim_num}
+	</select>
+	
+	<insert id="estimate_with" parameterType="Car_estimateVO">
+		INSERT INTO car_estimate VALUES(
+			#{id}, #{model_num}, #{trim_num}, SYSDATE, #{estimate_car_price}, 
+			#{estimate_option_price}, #{estimate_total_price},
+			 #{estimate_budget}, #{estimate_debt}, #{estimate_months}, #{monthly_installment}, #{option_choice},
+			 (SELECT NVL(MAX(eno)+1,1) FROM car_estimate)
+		)
+	</insert>
+	
+	<insert id="estimate_without" parameterType="Car_estimateVO">
+		INSERT INTO car_estimate 
+		(eno, id, model_num, trim_num, ESTIMATE_DATE, estimate_car_price, estimate_option_price, estimate_total_price, option_choice) 
+		VALUES(
+			(SELECT NVL(MAX(eno)+1,1) FROM car_estimate), #{id}, #{model_num}, #{trim_num}, SYSDATE, #{estimate_car_price}, 
+			#{estimate_option_price}, #{estimate_total_price}, #{option_choice} 						
+		)
+	</insert> 
+</mapper>

@@ -1,0 +1,190 @@
+CREATE TABLE news(
+ news_no NUMBER,
+ title VARCHAR2(100),
+ thumbnail_img VARCHAR2(100),
+ detail_img VARCHAR2(100),
+ content CLOB,
+ news_date DATE,
+ reporter VARCHAR2(100),
+ news_company VARCHAR2(100)
+);
+
+CREATE TABLE member (
+ id VARCHAR2(10),
+ pwd VARCHAR2(8) CONSTRAINT member_pwd_nn NOT NULL,
+ name VARCHAR(34) CONSTRAINT member_name_nn NOT NULL,
+ sex CHAR(4),
+ birthday DATE CONSTRAINT member_birthday_nn NOT NULL,
+ post VARCHAR2(7) CONSTRAINT member_post_nn NOT NULL,
+ addr1 VARCHAR2(100) CONSTRAINT member_addr1_nn NOT NULL,
+ addr2 VARCHAR2(100),
+ phone VARCHAR2(13),
+ hobby VARCHAR2(24),
+ content CLOB,
+ CONSTRAINT member_id_pk PRIMARY KEY(id),
+ CONSTRAINT member_sex_ck CHECK(sex IN('남자', '여자'))
+);
+
+CREATE TABLE brand(
+ brand_no NUMBER CONSTRAINT brand_brand_no_nn_NUT NULL,
+ brand_name VARCHAR2(100) CONSTRAINT brand_brand_name_nn NOT NULL,
+ brand_image VARCHAR2(200),
+ CONSTRAINT brand_brand_name_pk PRIMARY KEY(brand_no)
+);
+
+CREATE TABLE car(
+ car_num VARCHAR2(200) CONSTRAINT car_car_num_nn NOT NULL,
+ car_name VARCHAR2(100),
+ car_poster VARCHAR2(200),
+ car_price VARCHAR2(100),
+ car_launchDate VARCHAR2(100),
+ car_efficiency VARCHAR2(100),
+ car_size VARCHAR2(100),
+ car_fuelType VARCHAR2(100),
+ brand_num NUMBER CONSTRAINT car_brand_num_nn NOT NULL,
+ brand_no NUMBER CONSTRAINT car_brand_no_nn NOT NULL,
+ CONSTRAINT car_brand_num_pk PRIMARY KEY(car_num),
+ CONSTRAINT car_brand_no_fk FOREIGN KEY(brand_no) REFERENCES brand(brand_no)
+);
+
+CREATE TABLE car_model(
+ model_num VARCHAR2(100) CONSTRAINT car_model_model_num_nn NOT NULL,
+ model_name VARCHAR2(100),
+ car_num VARCHAR2(200) CONSTRAINT car_mode_car_num_nn NOT NULL,
+ CONSTRAINT car_model_model_num_pk PRIMARY KEY(model_num),
+ CONSTRAINT car_model_car_num_fk FOREIGN KEY(car_num) REFERENCES car(car_num)
+);
+
+CREATE TABLE car_trim(
+ trim_num VARCHAR2(100) CONSTRAINT car_trim_trim_num_nn NOT NULL,
+ trim_name VARCHAR2(100),
+ trim_fuel_type VARCHAR2(100),
+ trim_cc  VARCHAR2(100),
+ trim_efficiency VARCHAR2(100),
+ trim_price VARCHAR2(100),
+ model_num VARCHAR2(100),
+ CONSTRAINT car_trim_trim_num_pk PRIMARY KEY(trim_num),
+ CONSTRAINT car_trim_model_num_fk FOREIGN KEY(model_num) REFERENCES car_model(model_num)
+);
+
+CREATE TABLE car_option(
+ option_name VARCHAR2(100),
+ option_price VARCHAR2(100),
+ trim_num VARCHAR2(100) CONSTRAINT car_option_trim_num_nn NOT NULL,
+ CONSTRAINT car_option_trim_num_fk FOREIGN KEY(trim_num) REFERENCES car_trim(trim_num)
+);
+
+CREATE TABLE car_spec(
+ s1 VARCHAR2(100),
+ s2 VARCHAR2(100),
+ s3 VARCHAR2(100),
+ s4 VARCHAR2(100),
+ s5 VARCHAR2(100),
+ s6 VARCHAR2(100),
+ s7 VARCHAR2(100),
+ s8 VARCHAR2(100),
+ s9 VARCHAR2(100),
+ s10 VARCHAR2(100),
+ s11 VARCHAR2(100),
+ s12 VARCHAR2(100),
+ s13 VARCHAR2(100),
+ s14 VARCHAR2(100),
+ s15 VARCHAR2(100),
+ s16 VARCHAR2(100),
+ s17 VARCHAR2(100),
+ s18 VARCHAR2(100),
+ s19 VARCHAR2(100),
+ s20 VARCHAR2(100),
+ s21 VARCHAR2(100),
+ s22 VARCHAR2(100),
+ s23 VARCHAR2(100),
+ s24 VARCHAR2(100),
+ s25 VARCHAR2(100),
+ s26 VARCHAR2(100),
+ s27 VARCHAR2(100),
+ s28 VARCHAR2(100),
+ s29 VARCHAR2(100),
+ s30 VARCHAR2(100),
+ s31 VARCHAR2(100),
+ s32 VARCHAR2(100),
+ s33 VARCHAR2(100),
+ s34 VARCHAR2(100),
+ s35 VARCHAR2(100),
+ s36 VARCHAR2(100),
+ s37 VARCHAR2(100),
+ s38 VARCHAR2(100),
+ s39 VARCHAR2(100),
+ s40 VARCHAR2(100),
+ s41 VARCHAR2(100),
+ s42 VARCHAR2(100),
+ s43 VARCHAR2(100),
+ s44 VARCHAR2(100),
+ s45 VARCHAR2(100),
+ s46 VARCHAR2(100),
+ s47 VARCHAR2(100),
+ s48 VARCHAR2(100),
+ s49 VARCHAR2(100),
+ s50 VARCHAR2(100),
+ s51 VARCHAR2(100),
+ s52 VARCHAR2(100),
+ s53 VARCHAR2(100),
+ trim_num VARCHAR2(100) CONSTRAINT car_spec_trimnum_nn NOT NULL,
+ CONSTRAINT car_spec_trim_num_fk FOREIGN KEY(trim_num) REFERENCES car_trim(trim_num)
+);
+
+CREATE TABLE member (
+ id VARCHAR2(10) CONSTRAINT member_id_nn NOT NULL,
+ pwd VARCHAR2(50) CONSTRAINT member_pwd_nn NOT NULL,
+ name VARCHAR2(50) CONSTRAINT member_name_nn NOT NULL,
+ addr VARCHAR2(300) CONSTRAINT member_addr_nn NOT NULL,
+ birth DATE CONSTRAINT member_birth_nn NOT NULL,
+ sex VARCHAR2(10) CONSTRAINT member_sex_nn NOT NULL,
+ tel VARCHAR2(30) CONSTRAINT member_tel_nn NOT NULL,
+ email VARCHAR2(100),
+ budget VARCHAR2(100) CONSTRAINT member_budget_nn NOT NULL,
+ CONSTRAINT member_id_pk PRIMARY KEY(id) 
+);
+
+CREATE TABLE acc(
+ product_id VARCHAR2(10) CONSTRAINT acc_product_id_nn NOT NULL,
+ product_name VARCHAR2(100) CONSTRAINT acc_product_name_nn NOT NULL,
+ product_main_img CLOB CONSTRAINT acc_product_main_img_nn NOT NULL,
+ product_sub_img1 CLOB CONSTRAINT acc_product_sub_img1_nn NOT NULL,
+ product_sub_img2 CLOB CONSTRAINT acc_product_sub_img2_nn NOT NULL, 
+ product_explain CLOB CONSTRAINT acc_product_explain_nn NOT NULL,
+ product_origin_price VARCHAR2(100) CONSTRAINT acc_product_origin_price_nn NOT NULL,
+ product_dc_price VARCHAR2(100) CONSTRAINT acc_product_dc_price_nn NOT NULL,
+ product_company VARCHAR2(100) CONSTRAINT acc_product_company_nn NOT NULL,
+ product_made VARCHAR2(50) CONSTRAINT acc_product_made_nn NOT NULL,
+ product_delivery VARCHAR2(50) CONSTRAINT acc_product_delivery_nn NOT NULL,
+ product_delivery_fee VARCHAR2(50) CONSTRAINT acc_product_delivery_fee_nn NOT NULL,
+ stock NUMBER(4) CONSTRAINT acc_stock_nn NOT NULL, 
+ CONSTRAINT acc_product_id_pk PRIMARY KEY(product_id)
+);
+
+CREATE TABLE acc_pay( 
+ pay_date DATE CONSTRAINT acc_pay_pate_nn NOT NULL,
+ id VARCHAR2(10) CONSTRAINT acc_pay_id_nn NOT NULL,
+ product_id VARCHAR2(10) CONSTRAINT acc_pay_product_id_nn NOT NULL,
+ CONSTRAINT acc_pay_id_fk FOREIGN KEY(id) REFERENCES member(id),
+ CONSTRAINT acc_pay_product_id_fk FOREIGN KEY(product_id) REFERENCES acc(product_id)
+);
+
+CREATE TABLE car_agency (
+ agency_id NUMBER(5) CONSTRAINT car_agency_agency_id_nn NOT NULL,
+ brand VARCHAR2(50) CONSTRAINT car_agency_brand_nn NOT NULL,
+ addr VARCHAR2(200),
+ agency_name VARCHAR2(100) CONSTRAINT car_agency_agency_name_nn NOT NULL,
+ tel VARCHAR2(20),
+ CONSTRAINT car_agency_agency_id_pk PRIMARY KEY(agency_id)
+);
+
+CREATE TABLE driver_reserve(
+ model VARCHAR2(100) CONSTRAINT driver_reserve_model_nn NOT NULL,
+ reserve_date DATE CONSTRAINT driver_reserve_reserve_date_nn NOT NULL,
+ passenger VARCHAR(10) CONSTRAINT driver_reserve_passenger_nn NOT NULL,
+ id VARCHAR2(10) CONSTRAINT driver_reserve_id_nn NOT NULL,
+ agency_id NUMBER(5) CONSTRAINT driver_reserve_agency_id_nn NOT NULL,
+ CONSTRAINT driver_reserve_id_fk FOREIGN KEY(id) REFERENCES member(id),
+ CONSTRAINT driver_reserve_agency_id_fk FOREIGN KEY(agency_id) REFERENCES car_agency(agency_id)
+);

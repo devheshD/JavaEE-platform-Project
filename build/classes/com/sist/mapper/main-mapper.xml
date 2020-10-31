@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sist.mapper.main-mapper">
+	<!--  뉴스 등록일 순 -->
+	<select id="newsMainData" resultType="NewsVO">
+		SELECT news_no,title,detail_img,news_date,news_company FROM news WHERE news_no &lt; 10 ORDER BY news_no
+	</select>
+	
+	<!-- 악세서리 조회수 증가 -->
+   	<update id="accHitIncrement" parameterType="String">
+    	UPDATE acc SET
+     	acc_hit=acc_hit+1
+    	WHERE product_id = #{product_id}
+    </update>
+    
+    <!-- 차량 조회수 증가 -->
+   	<update id="carHitIncrement" parameterType="String">
+    	UPDATE car SET
+     	car_hit=car_hit+1
+    	WHERE car_num = #{cno}
+    </update>
+    
+	<!-- 차량 효율 순 -->
+	<select id="carEfficiency" resultType="CarVO">
+		SELECT A.*
+		FROM (SELECT car_num,car_name,car_poster,car_price,car_launchdate,car_efficiency,car_size,car_fueltype,brand_name,rownum as num,comefficiency
+		FROM(SELECT car_num,car_name,car_poster,car_price,car_launchdate,car_efficiency,car_size,car_fueltype,brand_name,TO_NUMBER(efficiency) as comefficiency
+		FROM(SELECT car_num,car_name,car_poster,car_price,car_launchdate,car_efficiency,car_size,car_fueltype,brand_name,(CASE
+             WHEN car_efficiency IS NULL THEN '0'
+             WHEN car_efficiency LIKE '%~%' THEN SUBSTR(car_efficiency,0,INSTR(car_efficiency,'~',1,1)-1)
+             else SUBSTR(car_efficiency,0,INSTR(car_efficiency,' ',1,1)-1) 
+             END) AS efficiency FROM car) ORDER BY comefficiency DESC))A
+             WHERE num &lt;6
+	</select>
+	
+	<!-- 차량 조회수(인기)순 -->
+	<select id="carPopularList" resultType="CarVO">
+		SELECT *
+		FROM (SELECT car_hit,car_num,car_poster,car_name,car_launchdate,car_price
+		FROM car
+		ORDER BY car_hit DESC)
+		WHERE ROWNUM &lt;11
+	</select>
+	
+	<!-- 차량 출시일 순 -->
+	<select id="carRegdate" resultType="CarVO">
+		SELECT A.*
+		FROM (SELECT car_num,car_name,car_poster,car_price,car_launchdate,car_efficiency,car_size,car_fueltype,brand_name,rownum as num,comefficiency
+		FROM(SELECT car_num,car_name,car_poster,car_price,car_launchdate,car_efficiency,car_size,car_fueltype,brand_name,TO_NUMBER(efficiency) as comefficiency
+		FROM(SELECT car_num,car_name,car_poster,car_price,car_launchdate,car_efficiency,car_size,car_fueltype,brand_name,(CASE
+            WHEN car_efficiency IS NULL THEN '0'
+            WHEN car_efficiency LIKE '%~%' THEN SUBSTR(car_efficiency,0,INSTR(car_efficiency,'~',1,1)-1)
+            else SUBSTR(car_efficiency,0,INSTR(car_efficiency,' ',1,1)-1) 
+            END) AS efficiency FROM car) ORDER BY CAR_LAUNCHDATE DESC))A
+            where num&lt;6
+	</select>
+	
+	<!-- 차량 가격 순 -->
+	<select id="carPriceList" resultType="CarVO">
+		SELECT A.*
+        FROM(SELECT car_num,car_name,car_poster,car_price,car_launchdate,car_efficiency,car_size,car_fueltype,brand_name,rownum as num,comprice
+		FROM (SELECT car_num,car_name,car_poster,car_price,car_launchdate,car_efficiency,car_size,car_fueltype,brand_name, TO_NUMBER(REPLACE(price,',','')) AS comprice
+		FROM (SELECT car_num,car_name,car_poster,car_price,car_launchdate,car_efficiency,car_size,car_fueltype,brand_name,(CASE
+                    WHEN car_price ='미정' THEN '0'
+                    WHEN car_price LIKE '%~%' THEN SUBSTR(car_price,0,INSTR(car_price,' ',1,1)-1)
+                    else car_price
+                    END) AS price
+		FROM car)ORDER BY comprice DESC))A
+        WHERE num &lt;6
+	</select>
+	
+	<!-- 차량 악세서리 조회수순  -->
+	<select id="carAccList" resultType="AccVO">
+		SELECT product_id,product_name,product_main_img,acc_hit
+		FROM (SELECT product_id,product_name,product_main_img,acc_hit
+		FROM acc
+		ORDER BY acc_hit DESC)
+		WHERE ROWNUM &lt;6
+	</select>
+	
+	
+    
+    <!-- 국내 차량 브랜드 -->
+    <select id="kBrandList" resultType="BrandVO" parameterType="String">
+		SELECT brand_name, brand_image, car_company
+		from brand
+		WHERE car_company=#{car_company}
+    </select>
+    
+    <!-- 유럽 차량 브랜드 -->
+    <select id="euBrandList" resultType="BrandVO" parameterType="String">
+		SELECT brand_name, brand_image, car_company
+		from brand
+		WHERE car_company=#{car_company}
+    </select>
+    
+    <!-- 일본/중국 차량 브랜드 -->
+    <select id="aBrandList" resultType="BrandVO" parameterType="String">
+		SELECT brand_name, brand_image, car_company
+		from brand
+		WHERE car_company LIKE '%'||#{car_company}||'%'
+    </select>
+    
+    <!-- 미국 차량 브랜드 -->
+    <select id="amBrandList" resultType="BrandVO" parameterType="String">
+		SELECT brand_name, brand_image, car_company
+		from brand
+		WHERE car_company=#{car_company}
+    </select>
+</mapper>

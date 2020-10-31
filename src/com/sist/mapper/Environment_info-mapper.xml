@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sist.mapper.Environment_info-mapper">
+	<select id="envInfoData" resultType="Environment_infoVO">
+		SELECT * FROM Environment_info
+		ORDER BY year
+	</select>	 
+	
+	<!-- 친환경 자동차 리스트 -->	
+	<select id="env_carListData" resultType="CarVO" parameterType="java.util.Map">
+		SELECT A.*
+		FROM (SELECT car_num,car_name,car_poster,car_price,car_launchdate,car_efficiency,car_size,car_fueltype,brand_name,rownum as num
+		FROM (SELECT car_num,car_name,car_poster,car_price,car_launchdate,car_efficiency,car_size,car_fueltype,brand_name
+		FROM car WHERE car_fueltype LIKE '%전기%' OR car_fueltype LIKE '%수소%' OR car_fueltype LIKE '%LPG%'))A
+		WHERE num BETWEEN #{start} AND #{end}
+	</select>
+	
+	<!-- 총페이지 구하기 -->
+    <select id="env_carTotalPage" resultType="int">
+   	 	SELECT CEIL(COUNT(*)/9.0)
+   	 	FROM (SELECT car_num,car_name,car_poster,car_price,car_launchdate,car_efficiency,car_size,car_fueltype,brand_name
+		FROM car WHERE car_fueltype LIKE '%전기%' OR car_fueltype LIKE '%수소%' OR car_fueltype LIKE '%LPG%')
+    </select>
+    
+    <!-- 최신순 자동차 리스트 -->
+	<select id="env_carListLaunchdate" resultType="CarVO" parameterType="java.util.Map">
+		SELECT A.*
+		FROM (SELECT car_num,car_name,car_poster,car_price,car_launchdate,car_efficiency,car_size,car_fueltype,brand_name,rownum as num
+		FROM (SELECT car_num,car_name,car_poster,car_price,car_launchdate,car_efficiency,car_size,car_fueltype,brand_name
+		FROM car WHERE car_fueltype LIKE '%전기%' OR car_fueltype LIKE '%수소%' OR car_fueltype LIKE '%LPG%' ORDER BY car_launchdate DESC))A
+		WHERE num BETWEEN #{start} AND #{end}
+		
+	</select>
+	
+	<!-- 가격순 자동차 리스트 -->
+	<select id="env_carListPrice" resultType="CarVO" parameterType="java.util.Map">
+		SELECT A.*
+        FROM(SELECT car_num,car_name,car_poster,car_price,car_launchdate,car_efficiency,car_size,car_fueltype,brand_name,rownum as num,comprice
+		FROM (SELECT car_num,car_name,car_poster,car_price,car_launchdate,car_efficiency,car_size,car_fueltype,brand_name, TO_NUMBER(REPLACE(price,',','')) AS comprice
+		FROM (SELECT car_num,car_name,car_poster,car_price,car_launchdate,car_efficiency,car_size,car_fueltype,brand_name,(CASE
+                    WHEN car_price ='미정' THEN '0'
+                    WHEN car_price LIKE '%~%' THEN SUBSTR(car_price,0,INSTR(car_price,' ',1,1)-1)
+                    else car_price
+                    END) AS price
+		FROM car) WHERE car_fueltype LIKE '%전기%' OR car_fueltype LIKE '%수소%' OR car_fueltype LIKE '%LPG%' 
+		ORDER BY comprice DESC))A
+        WHERE num BETWEEN #{start} AND #{end}
+	</select>
+	
+	<!-- 자동차 검색(이름) -->
+	<select id="env_carSearchData" resultType="CarVO" parameterType="String">
+		SELECT car_num,car_name,car_poster,car_price,car_launchdate,car_efficiency,car_size,car_fueltype,brand_name 
+		FROM car 
+		WHERE car_name LIKE '%'||#{keyword}||'%' AND (car_fueltype LIKE '%전기%' OR car_fueltype LIKE '%수소%' OR car_fueltype LIKE '%LPG%')
+	</select>
+	
+	<!-- 자동차 검색(가격) -->
+   <select id="env_carPriceSearchData" resultType="CarVO" parameterType="java.util.Map">
+      SELECT A.*
+      FROM(SELECT car_num,car_name,car_poster,car_price,car_launchdate,car_efficiency,car_size,car_fueltype,brand_name,lowPrice,highPrice,rownum as num
+      FROM(SELECT car_num,car_name,car_poster,car_price,car_launchdate,car_efficiency,car_size,car_fueltype,brand_name,
+                  TO_NUMBER(REPLACE((CASE
+                        WHEN car_price='미정' THEN '0'
+                        WHEN car_price LIKE '%~%' THEN SUBSTR(car_price,0,INSTR(car_price,' ',1,1)-1)
+                        else car_price
+                        END),',','')) as lowPrice,
+                    TO_NUMBER(REPLACE((CASE
+                        WHEN car_price='미정' THEN '0'
+                        WHEN car_price LIKE '%~%' THEN SUBSTR(car_price,INSTR(car_price,' ',1,2)+1)
+                        else car_price
+                        END),',','')) as highPrice 
+      FROM car
+      WHERE car_fueltype LIKE '%전기%' OR car_fueltype LIKE '%수소%' OR car_fueltype LIKE '%LPG%'
+      ORDER BY lowPrice DESC))A
+      WHERE #{lowPrice} &lt;= lowPrice AND highPrice &lt;= #{highPrice}  
+   </select>
+   
+   <!-- 자동차 상세 검색(체크박스) -->
+   <select id="env_carDetailSearchData" resultType="CarVO" parameterType="java.util.Map">
+      SELECT car_num,car_name,car_poster,car_price,car_launchdate,car_efficiency,car_size,car_fueltype,brand_name 
+      FROM (
+      	SELECT * 
+      	FROM car 
+      	WHERE car_fueltype LIKE '%전기%' OR car_fueltype LIKE '%수소%' OR car_fueltype LIKE '%LPG%'
+      	) 
+      WHERE      	
+      	(
+      	car_size IN
+      		<foreach collection="carsizeArr" item="type" open="(" close=")" separator=",">
+      			#{type}
+      		</foreach>
+      	AND 
+      		<foreach collection="carfueltypeArr" item="type" open="(" close=")" separator="OR">
+      			car_fueltype LIKE '%'||#{type}||'%' 
+      		</foreach>
+      	)
+   </select>
+</mapper>

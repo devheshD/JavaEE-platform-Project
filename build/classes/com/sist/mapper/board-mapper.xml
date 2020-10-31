@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sist.mapper.board-mapper">
+	<!-- 게시판 목록 출력 -->
+	<select id="boardListData" resultType="BoardVO"  parameterType="java.util.Map">
+		SELECT no, subject, name, regdate, hit, rcount, num
+		FROM (SELECT no, subject, name, regdate, hit, rcount, rownum as num
+		FROM (SELECT no, subject, name, regdate, hit, rcount
+		FROM replyboard ORDER BY no DESC))
+		WHERE num BETWEEN #{start} AND #{end}
+	</select>
+	
+	<!-- 총 페이지 -->
+	<select id="boardCount" resultType="int">
+		SELECT CEIL(COUNT(*)/10.0) FROM replyboard
+	</select>
+	
+	<!-- 글쓰기 추가 -->
+	<insert id="boardInsert" parameterType="BoardVO">
+		INSERT INTO replyBoard VALUES((SELECT NVL(MAX(no)+1, 1) FROM replyBoard), #{name}, #{subject}, #{content}, #{pwd}, SYSDATE, 0, 0)
+	</insert>
+	
+	<!-- 상세보기 -->
+	<select id="boardDetail" resultType="BoardVO" parameterType="int">
+		SELECT no, name, subject, content, regdate, hit, pwd
+		FROM replyBoard
+		WHERE no=#{no}
+	</select>
+	<!-- 조회수 증가 -->
+	<update id="hitIncrement" parameterType="int">
+		UPDATE replyBoard 
+		SET hit=hit+1 
+		WHERE no=#{no}
+	</update>
+	
+	<!-- 게시글 수정 -->
+	<update id="boardUpdate" parameterType="BoardVO">
+		UPDATE replyBoard SET name=#{name}, subject=#{subject}, content=#{content}
+		WHERE no=#{no}
+	</update>
+	
+	<!-- 게시글 삭제 -->
+	<delete id="boardChildReplyDelete" parameterType="int">
+		DELETE FROM reply
+		WHERE bno=#{bno}
+	</delete>
+	<delete id="boardDelete" parameterType="int">
+		DELETE FROM replyBoard
+		WHERE no=#{no}
+	</delete>
+	
+	<!-- 댓글 조회 -->
+	<select id="replyListData" resultType="ReplyVO" parameterType="int">
+		SELECT no, bno, id, name, msg, TO_CHAR(regdate, 'YYYY-MM-DD HH24:MI:SS') as dbday 
+		FROM reply
+		WHERE bno=#{bno}
+		ORDER BY no ASC
+	</select>
+	
+	<!-- 댓글 쓰기 -->
+	<insert id="replyInsert" parameterType="ReplyVO">
+		INSERT INTO reply VALUES((SELECT NVL(MAX(no)+1, 1) FROM reply), #{bno}, #{id}, #{name}, #{msg}, SYSDATE)
+	</insert>
+	<update id="replyCount" parameterType="int">
+		UPDATE replyBoard SET rcount=rcount+1
+		WHERE no=#{no}
+	</update>
+	
+	<!-- 댓글 수정 -->
+	<update id="replyUpdate" parameterType="ReplyVO">
+		UPDATE reply SET msg=#{msg}
+		WHERE no=#{no}
+	</update>
+	
+	<!-- 댓글 삭제 -->
+	<delete id="replyDelete" parameterType="int">
+		DELETE FROM reply WHERE no=#{no}
+	</delete>
+	<update id="replyDecrement" parameterType="int">
+		UPDATE replyBoard SET rcount=rcount-1
+		WHERE no=#{no}
+	</update>
+	
+	<!-- 찾기 -->
+	<select id="boardFindCount" resultType="int" parameterType="java.util.Map">
+		SELECT COUNT(*)
+		FROM replyBoard
+		WHERE ${fs} LIKE '%'||#{ss}||'%'
+	</select>
+	<select id="boardFindData" resultType="BoardVO" parameterType="java.util.Map">
+		SELECT no, subject, name, regdate, hit, content
+		FROM replyBoard
+		WHERE ${fs} LIKE '%'||#{ss}||'%'
+	</select>
+
+</mapper>

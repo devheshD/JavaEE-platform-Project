@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sist.mapper.mypage-mapper">
+	<!-- 관리자 마이페이지 시승 내역조회 -->
+	<select id="adminMypage" resultType="Driver_reserveVO">
+		SELECT * FROM driver_reserve
+	</select>
+
+	<!-- 예약 마이페이지 -->
+	<select id="reserveMypage" resultType="Driver_reserveVO"
+		parameterType="String">
+		SELECT model, reserve_date, agency_name, approval_num, no FROM
+		driver_reserve WHERE id=#{id} ORDER BY no ASC
+	</select>
+
+	<!-- 예약 완료 -->
+	<update id="reserveOkUpdate" parameterType="int">
+		UPDATE driver_reserve SET approval_num=1 WHERE no=#{no}
+	</update>
+
+	<!-- 예약 취소 -->
+	<delete id="reserveDelete" parameterType="int">
+		DELETE FROM
+		driver_reserve WHERE no=#{no}
+	</delete>
+
+	<!-- 액세서리 주문내역 -->
+	<select id="accPay" resultType="AccTotalVO" parameterType="String">
+		SELECT acc.product_name, acc.product_main_img, acc.product_id,
+		acc.product_origin_price, acc.product_origin_price,
+		acc.product_dc_price, acc_pay.quantity, acc_pay.pay_date
+		FROM acc_pay,acc
+		WHERE acc_pay.product_id=acc.product_id AND acc_pay.id=#{id} ORDER BY
+		acc_pay.pay_date DESC
+	</select>
+
+	<!-- 액세서리 찜내역 -->
+	<select id="accJjim" resultType="Acc_jjimVO" parameterType="String">
+		SELECT
+		acc.product_id,acc.product_name,acc.product_main_img,acc.product_sub_img1,acc.product_sub_img2,acc.product_explain,acc.product_origin_price,acc.product_dc_price,acc.product_company,acc.product_made,acc.product_delivery,acc.product_delivery_fee,acc.stock,acc_cart.ano
+		FROM acc_cart,acc
+		WHERE acc_cart.product_id=acc.product_id AND acc_cart.id=#{id}
+	</select>
+	
+	<!-- 악세서리 삭제 -->
+	<delete id="acc_cancel" parameterType="int">
+		DELETE FROM acc_cart
+		WHERE ano=#{ano}
+	</delete>
+
+	<!-- 마이페이지 견적 내역 -->
+	<select id="myEstimate" resultType="MyEstimateVO" parameterType="String">
+		SELECT estimate_date, car_estimate.estimate_total_price as
+		my_totalPrice, car_trim.trim_name as my_trim_name,
+		car_model.model_name as my_model_name, car.car_name as my_car_name,
+		car.car_poster as my_car_poster,car_estimate.eno
+		FROM car_estimate,
+		car_trim, car_model, car
+		WHERE car_estimate.id=#{id}
+		AND car_estimate.trim_num=car_trim.trim_num
+		AND car_trim.model_num=car_model.model_num
+		AND car_model.car_num=car.car_num
+		ORDER BY estimate_date desc
+	</select>
+
+	<!-- 마이페이지 견적 취소 -->
+	<delete id="estimate_cancel" parameterType="int">
+		DELETE FROM car_estimate
+		WHERE eno=#{eno}
+	</delete>
+
+	<!-- 마이페이지 Car_estimateVO -->
+	<select id="estimate_detail" parameterType="int" resultType="Car_estimateVO">
+		select * from car_estimate where eno = #{eno}
+	</select>
+
+	<!-- 마이페이지 model_num -->
+	<select id="estimate_carnum" parameterType="String" resultType="String">
+		select car_num from car_model where model_num = #{model_num}
+	</select>
+</mapper>
+
+
+
+
+
+

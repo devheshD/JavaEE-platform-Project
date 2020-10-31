@@ -1,0 +1,10 @@
+@CHARSET "EUC-KR";
+
+@font-face{
+	font-family: 'NanumGothic';
+	src: url('fonts/NanumGothic.ttf') format('truetype');
+}
+li{
+	
+	font-family:NanumGothic
+}

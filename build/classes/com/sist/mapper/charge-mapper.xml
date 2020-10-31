@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sist.mapper.charge-mapper">
+	<select id="chargeData" resultType="ChargeVO" parameterType="String">
+		SELECT * FROM charge 
+		WHERE addr LIKE '%'||#{loc}||'%'
+		ORDER BY fuel DESC
+	</select>	 
+</mapper>
